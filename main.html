@@ -1,11 +1,17 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+  <script type="text/javascript">
+    if (sessionStorage.getItem('passed_security_gate') !== 'true') {
+      window.location.replace("index.html");
+    }
+  </script>
+
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="keywords" content="imageboard,image board,forum,bbs,65chan,chan,pc,linux,dgi,coding" />
-  <meta name="description" content="65chan is a decentralized, peer-to-peer image board network." />
-  <title>65chan</title>
+  <meta name="keywords" content="imageboard,image board,forum,bbs,6chan,chan,pc,linux,dgi,coding" />
+  <meta name="description" content="6chan is a decentralized, peer-to-peer image board network." />
+  <title>6chan</title>
   
   <link rel="stylesheet" href="styles.css" type="text/css" />
 </head>
@@ -15,7 +21,7 @@
     
     <div id="hd">
       <div id="logo-fp">
-        <h1><font color="#800000" size="7"><b>65chan</b></font></h1>
+        <h1><font color="#800000" size="7"><b>6chan</b></font></h1>
         <small>The Decentralized P2P Image Board Network</small>
       </div>
     </div>
@@ -25,10 +31,10 @@
       <div class="box-outer" id="announce">
         <div class="box-inner">
           <div class="boxbar">
-            <h2>What is 65chan?</h2>
+            <h2>What is 6chan?</h2>
           </div>
           <div class="boxcontent">
-            65chan is an open directory of image-based message boards powered by decentralized data protocols. Anyone can read, contribute files, and log notes seamlessly onto the graph architecture directly through their browser.
+            6chan is an open directory of image-based message boards powered by decentralized data protocols. Anyone can read, contribute files, and log notes seamlessly onto the graph architecture directly through their browser.
           </div>
         </div>
       </div>
@@ -46,7 +52,7 @@
                 <li><a href="https://beecau.github.io/board.html?b" class="boardlink">/b/ - Random / Chaos</a></li>
                 <li><a href="https://beecau.github.io/board.html?r9k" class="boardlink">/r9k/ - Robot 9000 (Unique posts only)</a></li>
                 <li><a href="https://beecau.github.io/board.html?int" class="boardlink">/int/ - International / Culture</a></li>
-                <li><a href="https://beecau.github.io/board.html?10" class="boardlink">/10/ - 65chan's news</a></li>
+                <li><a href="https://beecau.github.io/board.html?10" class="boardlink">/10/ - 6chan's news</a></li>
               </ul>
               
               <h3 style="text-decoration: underline; display: inline;">Creative Systems</h3>
@@ -111,7 +117,7 @@
       </ul>
       
       <div id="copyright">
-        Copyright &copy; <span id="year-span">2026</span> 65chan Support. All rights reserved.
+        Copyright &copy; <span id="year-span">2026</span> 6chan Support. All rights reserved.
       </div>
     </div>
 
