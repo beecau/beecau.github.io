@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>10chan</title>
+  <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
+  <link rel="stylesheet" href="Board.css">
+</head>
+<body bgcolor="#FFFFEE" text="#800000" link="#0000EE" vlink="#0000EE" alink="#FF0000">
+
+  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tr><td align="right">[<a href="https://beecau.github.io/">Home</a>]</td></tr>
+  </table>
+
+  <p align="center">
+    <font color="#800000" size="5">
+      <b><span id="board-title">10chan</span></b>
+    </font>
+  </p>
+  <hr width="90%" size="1">
+
+  <center>
+    <form id="postForm" onsubmit="submitThread(event)">
+      <input type="text" id="postContent" placeholder="Enter your post..." required>
+      <button type="submit">Submit</button>
+    </form>
+  </center>
+  
+  <hr>
+  <div id="board"></div>
+
+  <script>
+    // 1. READ THE URL PARAMETER (e.g., ?b or ?pc)
+    const urlParams = new URLSearchParams(window.location.search);
+    const boardCode = Array.from(urlParams.keys())[0] || 'b'; // Defaults to 'b'
+    document.getElementById('board-title').innerText = "/" + boardCode + "/";
+
+    // 2. INITIALIZE GUN
+    const gun = Gun({ peers: ['https://gun-rs.iris.to/gun'], localStorage: true });
+    const board = gun.get('10chan_board_' + boardCode); 
+
+    // 3. SUBMIT THREAD LOGIC
+    function submitThread(event) {
+      event.preventDefault(); // Prevent page reload
+      
+      const input = document.getElementById('postContent');
+      const content = input.value.trim();
+      
+      if (!content) return;
+
+      // Create a new post object
+      const newPost = {
+        content: content,
+        timestamp: Date.now()
+      };
+
+      // Push to Gun database
+      board.set(newPost);
+      
+      // Clear the input field
+      input.value = '';
+    }
+
+    // 4. LISTEN TO BOARD LOGIC
+    board.map().on(function(post, id) {
+      if (!post || !post.content) return; // Ignore empty nodes
+
+      const boardDiv = document.getElementById('board');
+      
+      // Check if post already exists in the DOM to prevent duplicates
+      if (document.getElementById(id)) return;
+
+      // Create new HTML element for the post
+      const postEl = document.createElement('div');
+      postEl.id = id;
+      postEl.style.borderBottom = "1px solid #ccc";
+      postEl.style.padding = "10px";
+      
+      const date = new Date(post.timestamp).toLocaleString();
+      
+      // Format how the post looks
+      postEl.innerHTML = `
+        <small>Anonymous <i>${date}</i> No.${id.slice(0,8)}</small><br>
+        ${post.content}
+      `;
+
+      // Prepend to show newest at the top (or append for bottom)
+      boardDiv.prepend(postEl);
+    });
+  </script>
+</body>
+</html>
