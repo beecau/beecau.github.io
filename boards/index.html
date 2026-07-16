@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="keywords" content="imageboard,image board,forum,bbs,10chan,chan,pc,linux,dgi,coding" />
+  <meta name="description" content="10chan is a decentralized, peer-to-peer image board network." />
+  <title>10chan</title>
+  
+  <style type="text/css">
+    /* 90s STYLING FOR FRONT PAGE */
+    body {
+      background-color: #FFFFEE;
+      color: #800000;
+      font-family: "MS PGothic", "IPAMonaPGothic", "Mona", "sans-serif";
+      font-size: 10pt;
+      margin: 20px auto;
+      max-width: 950px;
+      padding: 0 10px;
+    }
+    a {
+      color: #0000EE;
+      text-decoration: none;
+    }
+    a:hover {
+      color: #FF0000;
+      text-decoration: underline;
+    }
+    #logo-fp {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .box-outer {
+      background-color: #FFFFEE;
+      border: 1px solid #D4D0C8;
+      margin-bottom: 15px;
+      box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+    .box-inner {
+      border: 1px solid #FFFFFF;
+    }
+    .boxbar {
+      background-color: #EEAA88;
+      color: #800000;
+      padding: 4px 8px;
+    }
+    .boxbar h2 {
+      font-size: 11pt;
+      margin: 0;
+      font-weight: bold;
+    }
+    .boxcontent {
+      padding: 10px;
+      background-color: #FFFFEE;
+    }
+    .boxcontent ul {
+      margin-top: 5px;
+      margin-bottom: 15px;
+      padding-left: 20px;
+    }
+    .boxcontent li {
+      margin-bottom: 3px;
+    }
+    .column {
+      float: left;
+      width: 31%;
+      margin-right: 2%;
+    }
+    .clear-bug {
+      clear: both;
+      height: 0;
+      overflow: hidden;
+    }
+    #ft {
+      text-align: center;
+      margin-top: 30px;
+      border-top: 1px solid #EEAA88;
+      padding-top: 10px;
+      font-size: 9pt;
+    }
+    #ft ul {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 10px 0;
+    }
+    #ft li {
+      display: inline;
+      margin: 0 5px;
+    }
+    #copyright {
+      margin-top: 10px;
+      color: #000000;
+    }
+    .boardlink {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="doc">
+    
+    <div id="hd">
+      <div id="logo-fp">
+        <h1><font color="#800000" size="7"><b>10chan</b></font></h1>
+        <small>The Decentralized P2P Image Board Network</small>
+      </div>
+    </div>
+
+    <div id="bd">
+      
+      <div class="box-outer" id="announce">
+        <div class="box-inner">
+          <div class="boxbar">
+            <h2>What is 10chan?</h2>
+          </div>
+          <div class="boxcontent">
+            10chan is an open directory of image-based message boards powered by decentralized data protocols. Anyone can read, contribute files, and log notes seamlessly onto the graph architecture directly through their browser.
+          </div>
+        </div>
+      </div>
+
+      <div class="box-outer" id="boards">
+        <div class="box-inner">
+          <div class="boxbar">
+            <h2>Boards</h2>
+          </div>
+          <div class="boxcontent">
+            
+            <div class="column">
+              <h3 style="text-decoration: underline; display: inline;">Core Hub</h3>
+              <ul>
+                <li><a href="https://beecau.github.io/boards/b.html" class="boardlink">/b/ - Random / Chaos</a></li>
+                <li><a href="https://beecau.github.io/boards/r9k.html" class="boardlink">/r9k/ - Robot 9000</a></li>
+                <li><a href="https://beecau.github.io/boards/int.html" class="boardlink">/int/ - International</a></li>
+              </ul>
+              
+              <h3 style="text-decoration: underline; display: inline;">Creative Systems</h3>
+              <ul>
+                <li><a href="https://beecau.github.io/boards/cgi.html" class="boardlink">/cgi/ - Computer Graphics</a></li>
+                <li><a href="https://beecau.github.io/boards/mp3.html" class="boardlink">/mp3/ - Audio Exchange</a></li>
+              </ul>
+            </div>
+
+            <div class="column">
+              <h3 style="text-decoration: underline; display: inline;">Digital Systems</h3>
+              <ul>
+                <li><a href="https://beecau.github.io/boards/pc.html" class="boardlink">/pc/ - Systems &amp; Hardware</a></li>
+                <li><a href="https://beecau.github.io/boards/dgi.html" class="boardlink">/dgi/ - Digital Intelligence</a></li>
+              </ul>
+              
+              <h3 style="text-decoration: underline; display: inline;">Cultural Exchange</h3>
+              <ul>
+                <li><a href="https://beecau.github.io/boards/a.html" class="boardlink">/a/ - Anime &amp; Manga</a></li>
+                <li><a href="https://beecau.github.io/boards/lit.html" class="boardlink">/lit/ - Literature &amp; Phil</a></li>
+              </ul>
+            </div>
+
+            <div class="column">
+              <h3 style="text-decoration: underline; display: inline;">Gaming Infrastructure</h3>
+              <ul>
+                <li><a href="https://beecau.github.io/boards/v.html" class="boardlink">/v/ - Video Games</a></li>
+                <li><a href="https://beecau.github.io/boards/emu.html" class="boardlink">/emu/ - Emulation &amp; ROMs</a></li>
+              </ul>
+              
+              <h3 style="text-decoration: underline; display: inline;">Physical Systems</h3>
+              <ul>
+                <li><a href="https://beecau.github.io/boards/diy.html" class="boardlink">/diy/ - Do-It-Yourself</a></li>
+              </ul>
+            </div>
+
+            <br class="clear-bug"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="box-outer" id="site-stats">
+        <div class="box-inner">
+          <div class="boxbar">
+            <h2>Network Status</h2>
+          </div>
+          <div class="boxcontent">
+            <div style="display: inline-block; margin-right: 20px;"><b>Data Architecture:</b> GunDB P2P Graph</div>
+            <div style="display: inline-block; margin-right: 20px;"><b>Cache Logic:</b> Bit-Packed UTF-16</div>
+            <div style="display: inline-block;"><b>Relay:</b> Iris Mesh</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div id="ft">
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="https://beecau.github.io/boards/b.html">Default Board</a></li>
+        <li><a href="https://gun.eco/" target="_blank">GunDB Architecture</a></li>
+      </ul>
+      
+      <div id="copyright">
+        Copyright &copy; <span id="year-span">2026</span> 10chan Support. All rights reserved.
+      </div>
+    </div>
+
+  </div>
+
+  <script type="text/javascript">
+    const startYear = 2026;
+    const currentYear = new Date().getFullYear();
+    const yearSpan = document.getElementById('year-span');
+    
+    if (currentYear > startYear) {
+      yearSpan.innerHTML = startYear + "-" + currentYear;
+    } else {
+      yearSpan.innerHTML = startYear;
+    }
+  </script>
+
+</body>
+</html>
