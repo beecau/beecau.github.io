@@ -53,7 +53,7 @@
           <td bgcolor=#eeaa88><b>File</b></td>
           <td>
             <input type=file id=upfile size="35" accept="image/*">
-            [<label><input type=checkbox id=textonly value=on checked>No Image</label>]
+            [<label><input type=checkbox id=textonly value=on>No Image</label>]
           </td>
         </tr>
         <tr>
@@ -90,7 +90,7 @@
       <td nowrap align=center>
         <input type=hidden name=mode value=usrdel>【Delete Post】[<input type=checkbox name=onlyimgdel value=on>Image Only]<br>
         Password <input type=password name=pwd size=8 maxlength=8 value="">
-        <input type=button value="Delete" onclick="alert('Delete functionality requires extra GunDB logic.')">
+        <input type=button value="Delete" onclick="deleteSelectedPosts()">
       </td>
     </tr>
   </table>
@@ -184,8 +184,17 @@
       const subInput = document.getElementById('sub').value.trim();
       const comInput = document.getElementById('com').value.trim();
       const fileInput = document.getElementById('upfile');
+      const textOnly = document.getElementById('textonly').checked;
+      const pwdInput = document.getElementById('pwd').value;
       
       if (!comInput) return;
+
+      // Hash the password so it's not sitting in plaintext on the P2P network
+      let pwdHash = null;
+      if (pwdInput) {
+        const pwdBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pwdInput));
+        pwdHash = Array.from(new Uint8Array(pwdBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+      }
 
       // --- NEW ROBOT 9000 (r9k) UNIQUENESS CHECK ---
       if (boardCode === 'r9k') {
@@ -222,7 +231,7 @@
       // ---------------------------------------------
 
       let imageData = null;
-      if (fileInput.files.length > 0) {
+      if (!textOnly && fileInput.files.length > 0) {
         const file = fileInput.files[0];
         
         if (file.size > 500000) {
@@ -239,6 +248,8 @@
 
       const ephemeralKey = await SEA.pair();
       const numericId = Math.floor(Date.now() / 1000).toString().slice(-6);
+      const randomStr = Math.random().toString(36).substring(2, 6);
+      const postNodeId = 'post_' + numericId + '_' + randomStr;
       
       const postData = {
         id_num: numericId,
@@ -246,12 +257,12 @@
         subject: subInput,
         comment: comInput,
         image: imageData, 
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        pwd_hash: pwdHash,
+        node_id: postNodeId
       };
 
       const signedData = await SEA.sign(postData, ephemeralKey);
-      const randomStr = Math.random().toString(36).substring(2, 6);
-      const postNodeId = 'post_' + numericId + '_' + randomStr;
       
       const nodePayload = {
         pubKey: ephemeralKey.pub,
@@ -264,6 +275,42 @@
       document.getElementById('com').value = '';
       document.getElementById('upfile').value = '';
       localStorage.removeItem('futaba_draft_packed');
+    }
+
+    // --- DELETE LOGIC ---
+    async function deleteSelectedPosts() {
+      const delPwd = document.querySelector('input[name="pwd"]').value;
+      const onlyImgDel = document.querySelector('input[name="onlyimgdel"]').checked;
+      const checkboxes = document.querySelectorAll('.delete-checkbox:checked');
+      
+      if (!delPwd) {
+        alert("Enter a password to delete.");
+        return;
+      }
+
+      // Hash the entered password to compare it
+      const pwdBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(delPwd));
+      const inputHash = Array.from(new Uint8Array(pwdBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+      checkboxes.forEach(box => {
+        const nodeId = box.getAttribute('data-nodeid');
+        const postHash = box.getAttribute('data-pwdhash');
+        
+        if (inputHash === postHash) {
+          if (onlyImgDel) {
+             // Wipe the image visually, though true SEA deletion requires keys
+             const imgElement = document.getElementById(nodeId).querySelector('img');
+             if(imgElement) imgElement.style.display = 'none';
+             alert("Image hidden locally. (P2P signature prevents modifying image without keys)");
+          } else {
+             // Tombstone the entire post in GunDB
+             gun.get(nodeId).put(null);
+             document.getElementById(nodeId).style.display = 'none';
+          }
+        } else {
+          alert("Incorrect password!");
+        }
+      });
     }
 
     // --- READ LOGIC (LIVE UPDATING) ---
@@ -293,7 +340,7 @@
         }
         
         postWrapper.innerHTML = `
-          <input type=checkbox name="${post.id_num}" value=delete>
+          <input type=checkbox class="delete-checkbox" data-nodeid="${post.node_id}" data-pwdhash="${post.pwd_hash}">
           <font color="#cc1105" size="+1"><b>${post.subject || ''}</b></font> 
           Name <font color="#117743"><b>${post.name}</b></font> 
           ${formatDate(post.timestamp)} 
