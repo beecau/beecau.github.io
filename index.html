@@ -1,112 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Just a moment...</title>
-  
-  <style>
-    body { 
-      font-family: sans-serif; 
-      display: flex; 
-      justify-content: center; 
-      align-items: center; 
-      height: 100vh; 
-      background-color: #f9f9f9; 
-      margin: 0; 
-    }
-    .challenge-box { 
-      text-align: center; 
-      padding: 40px; 
-      background: white; 
-      border: 1px solid #ddd; 
-      border-radius: 8px; 
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
-      max-width: 400px; 
-      width: 100%;
-    }
-    .spinner { 
-      border: 4px solid #f3f3f3; 
-      border-top: 4px solid #f90; 
-      border-radius: 50%; 
-      width: 40px; 
-      height: 40px; 
-      animation: spin 1s linear infinite; 
-      margin: 20px auto; 
-    }
-    @keyframes spin { 
-      0% { transform: rotate(0deg); } 
-      100% { transform: rotate(360deg); } 
-    }
-    #error-msg { 
-      color: #d00; 
-      font-weight: bold; 
-      display: none; 
-      margin-top: 20px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>SW HTTP/1.1 Server Sandbox</title>
 </head>
 <body>
 
-  <noscript>
-    <style>.challenge-box { display: none !important; }</style>
-    <div style="text-align: center; padding: 50px; background: white; border: 1px solid #ddd; border-radius: 8px;">
-      <h2 style="color: #d00;">JavaScript Required</h2>
-      <p>This website requires JavaScript to complete the security check.<br>Please enable JavaScript in your browser settings and refresh the page.</p>
+    <h1>SW HTTP/1.1 Mock Server Sandbox</h1>
+    <p>Status: <span id="status">Checking...</span></p>
+
+    <div>
+        <button id="btn-start">Register SW Server</button>
+        <button id="btn-stop">Unregister SW</button>
+        <button id="btn-test">Test HTTP Request</button>
     </div>
-  </noscript>
 
-  <div class="challenge-box" id="challenge-box">
-    <h2 id="status-title">Checking your browser...</h2>
-    <p id="status-text">Please wait while we verify your request. This process is automatic.</p>
-    
-    <div class="spinner" id="spinner"></div>
-    <p id="error-msg">Error 1020: Access Denied. Suspicious automated activity detected.</p>
-  </div>
+    <hr>
 
-  <script>
-    // 1. Clear any old session tokens just in case
-    sessionStorage.removeItem('passed_security_gate');
+    <h3>Target HTML to Serve</h3>
+    <textarea id="html-payload" rows="10" cols="80"><h1>Hello from real file SW!</h1></textarea>
+    <br><br>
+    <button id="btn-update">Update Content</button>
 
-    // 2. Start the security check after a 3-second delay
-    setTimeout(() => {
-      const ua = navigator.userAgent;
-      let isBot = false;
+    <h3>Live Server Console</h3>
+    <div id="console" style="border: 1px solid black; height: 150px; overflow-y: scroll; padding: 5px;"></div>
 
-      // Check for blank or missing User-Agent
-      if (!ua || ua.trim() === "") {
-        isBot = true;
-      }
+    <h3>Live Preview</h3>
+    <iframe id="preview-frame" src="about:blank" width="100%" height="200px" style="border: 1px solid black;"></iframe>
 
-      // Check for explicit bots, curl, wget, and scraping scripts
-      const badWords = /bot|spider|crawl|curl|wget|python|ruby|perl|php|java|scraper/i;
-      if (badWords.test(ua)) {
-        isBot = true;
-      }
+    <script>
+        const logEl = document.getElementById('console');
+        const statusEl = document.getElementById('status');
+        const iframe = document.getElementById('preview-frame');
 
-      // Check for extremely old browsers (e.g., Chrome versions under 10)
-      const chromeMatch = ua.match(/Chrome\/([0-9]+)/);
-      if (chromeMatch) {
-        const chromeVersion = parseInt(chromeMatch[1], 10);
-        if (chromeVersion < 10) { 
-          isBot = true;
+        function log(msg) {
+            logEl.innerHTML += `[${new Date().toLocaleTimeString()}] ${msg}<br>`;
+            logEl.scrollTop = logEl.scrollHeight;
         }
-      }
 
-      // 3. Action based on basic JS checks
-      if (isBot) {
-        // Block them outright
-        document.getElementById('status-title').innerText = "Access Denied";
-        document.getElementById('status-text').innerText = "Your browser fingerprint was rejected by the security rules.";
-        document.getElementById('spinner').style.display = "none";
-        document.getElementById('error-msg').style.display = "block";
-      } else {
-        // Passed checks! Give them the token and redirect automatically.
-        sessionStorage.setItem('passed_security_gate', 'true');
-        window.location.replace("main.html");
-      }
-    }, 3000); 
-  </script>
+        async function registerSW() {
+            try {
+                await navigator.serviceWorker.register('./sw.js', { scope: './' });
+                log('[*] SW registered successfully.');
+                statusEl.innerText = 'Active';
+                updateServerPayload();
+            } catch (err) {
+                log('[!] Failed: ' + err.message);
+            }
+        }
 
+        async function unregisterSW() {
+            const regs = await navigator.serviceWorker.getRegistrations();
+            for (let reg of regs) await reg.unregister();
+            log('[-] SW unregistered.');
+            statusEl.innerText = 'Stopped';
+        }
+
+        function updateServerPayload() {
+            if (navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({
+                    type: 'UPDATE_CONTENT',
+                    payload: document.getElementById('html-payload').value
+                });
+                log('[*] Content updated.');
+            }
+        }
+
+        navigator.serviceWorker.addEventListener('message', (event) => {
+            if (event.data?.type === 'HTTP_LOG') {
+                log(`[HTTP/1.1] ${event.data.method} ${event.data.url}`);
+            }
+        });
+
+        document.getElementById('btn-start').onclick = registerSW;
+        document.getElementById('btn-stop').onclick = unregisterSW;
+        document.getElementById('btn-update').onclick = updateServerPayload;
+        document.getElementById('btn-test').onclick = () => {
+            iframe.src = '/virtual-server?' + Date.now();
+        };
+
+        navigator.serviceWorker.getRegistration().then(reg => {
+            statusEl.innerText = reg ? 'Active' : 'Not Running';
+        });
+    </script>
 </body>
 </html>
