@@ -2,86 +2,280 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SW HTTP/1.1 Server Sandbox</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Language Interpreter & Tutorial</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #4ec9b0;
+        }
+        .card {
+            background-color: #252526;
+            border: 1px solid #333;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            background-color: #1e1e1e;
+            color: #ce9178;
+            border: 1px solid #454545;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 14px;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #0e639c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-family: inherit;
+        }
+        button:hover {
+            background-color: #1177bb;
+        }
+        pre {
+            background-color: #1e1e1e;
+            padding: 15px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            overflow-x: auto;
+            color: #9cdcfe;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        code {
+            background-color: #333;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #ce9178;
+        }
+    </style>
 </head>
 <body>
 
-    <h1>SW HTTP/1.1 Mock Server Sandbox</h1>
-    <p>Status: <span id="status">Checking...</span></p>
+    <h1>Custom Language Engine</h1>
+    <p>A fully functional custom programming language featuring state assignment, conditionals, negation, and loop blocks.</p>
 
-    <div>
-        <button id="btn-start">Register SW Server</button>
-        <button id="btn-stop">Unregister SW</button>
-        <button id="btn-test">Test HTTP Request</button>
+    <!-- INTERACTIVE RUNNER -->
+    <div class="card">
+        <h2>Live Interpreter</h2>
+        <label for="code-input"><strong>Enter your script:</strong></label><br><br>
+        <textarea id="code-input">4>P:3>B:1>S:1000>D:[:S;1:P-(4/B)>P:2>S;/;1:P+(4/B)>P:1>S:B+2>B]:D!>C</textarea>
+        <br>
+        <button onclick="runScript()">Run Script</button>
+        
+        <h3>Execution Output:</h3>
+        <pre id="output">Click "Run Script" to execute code...</pre>
     </div>
 
-    <hr>
+    <!-- TUTORIAL SECTION -->
+    <div class="card">
+        <h2>Language Tutorial & Syntax Guide</h2>
+        <p>Learn how to write scripts in your custom-built programming language:</p>
+        
+        <ul>
+            <li><strong>Assignment (<code>></code>):</strong> Assigns a value or expression result to a variable. Example: <code>4>P</code> sets variable <code>P</code> to 4.</li>
+            <li><strong>Sequential Chaining (<code>:</code>):</strong> Separates individual commands or steps in a sequence.</li>
+            <li><strong>Conditionals (<code>:VAR;VAL</code>):</strong> Checks if a variable equals a target value. Example: <code>:S;1</code> checks if <code>S == 1</code>.</li>
+            <li><strong>Negation / Else-Not (<code>;/;</code>):</strong> Checks if a variable does <em>not</em> equal a target value. Example: <code>:S;/;1</code> triggers if <code>S != 1</code>.</li>
+            <li><strong>Loop Blocks (<code>[...] > D!</code>):</strong> Wraps a block of code in brackets and repeats it <code>D</code> times using the exclamation mark modifier.</li>
+        </ul>
 
-    <h3>Target HTML to Serve</h3>
-    <textarea id="html-payload" rows="10" cols="80"><h1>Hello from real file SW!</h1></textarea>
-    <br><br>
-    <button id="btn-update">Update Content</button>
-
-    <h3>Live Server Console</h3>
-    <div id="console" style="border: 1px solid black; height: 150px; overflow-y: scroll; padding: 5px;"></div>
-
-    <h3>Live Preview</h3>
-    <iframe id="preview-frame" src="about:blank" width="100%" height="200px" style="border: 1px solid black;"></iframe>
+        <h3>Sample Leibniz Pi Script Breakdown:</h3>
+        <pre>4>P:3>B:1>S:1000>D:  [ ... ] : D! > C
+│       │ │    │      │     │  │
+│       │ │    │      │     │  └── Stores final result in C
+│       │ │    │      │     └──── Loops D times (1000 iterations)
+│       │ │    │      └────────── Code block containing if/else conditional math
+│       │ │    └───────────────── Sets loop counter D = 1000
+│       │ └────────────────────── Sets toggle state S = 1
+│       └──────────────────────── Sets denominator B = 3
+└──────────────────────────────── Sets starting Pi approximation P = 4</pre>
+    </div>
 
     <script>
-        const logEl = document.getElementById('console');
-        const statusEl = document.getElementById('status');
-        const iframe = document.getElementById('preview-frame');
+        class CustomInterpreter {
+            constructor() {
+                this.vars = {};
+            }
 
-        function log(msg) {
-            logEl.innerHTML += `[${new Date().toLocaleTimeString()}] ${msg}<br>`;
-            logEl.scrollTop = logEl.scrollHeight;
+            evaluateExpression(expr) {
+                expr = expr.trim();
+                let processed = expr;
+                // Sort keys by length descending to prevent substring substitution bugs
+                const sortedVars = Object.keys(this.vars).sort((a, b) => b.length - a.length);
+                for (let v of sortedVars) {
+                    const regex = new RegExp('\\b' + v + '\\b', 'g');
+                    processed = processed.replace(regex, this.vars[v]);
+                }
+                
+                try {
+                    return eval(processed);
+                } catch(e) {
+                    return expr;
+                }
+            }
+
+            run(codeStr) {
+                this.vars = {};
+                codeStr = codeStr.replace(/\s+/g, '');
+                this.parseSequence(codeStr);
+            }
+
+            parseSequence(code) {
+                let i = 0;
+                let n = code.length;
+                while (i < n) {
+                    if (code[i] === '[') {
+                        let depth = 1;
+                        let start = i + 1;
+                        i++;
+                        while (i < n && depth > 0) {
+                            if (code[i] === '[') depth++;
+                            else if (code[i] === ']') depth--;
+                            i++;
+                        }
+                        let blockContent = code.substring(start, i - 1);
+                        if (i < n && code[i] === '!') {
+                            i++;
+                            let loops = Number(this.vars['D'] || 1);
+                            for (let step = 0; step < loops; step++) {
+                                this.parseBlock(blockContent);
+                            }
+                        }
+                        continue;
+                    }
+
+                    let nextColon = code.indexOf(':', i);
+                    let nextBracket = code.indexOf('[', i);
+                    let delims = [nextColon, nextBracket].filter(d => d !== -1);
+                    let endIdx = delims.length > 0 ? Math.min(...delims) : n;
+
+                    let chunk = code.substring(i, endIdx);
+                    if (chunk) {
+                        this.executeCommand(chunk);
+                    }
+
+                    i = endIdx;
+                    if (i < n && code[i] === ':') {
+                        i++;
+                    }
+                }
+            }
+
+            executeCommand(cmd) {
+                if (cmd.includes('>')) {
+                    let parts = cmd.split('>');
+                    if (parts[0] !== '') {
+                        let val = this.evaluateExpression(parts[0]);
+                        this.vars[parts[1]] = val;
+                    }
+                }
+            }
+
+            parseBlock(blockStr) {
+                let i = 0;
+                let n = blockStr.length;
+                while (i < n) {
+                    if (blockStr[i] === ':') {
+                        i++;
+                        let [condPart, nextIdx] = this.readCondition(blockStr, i);
+                        i = nextIdx;
+                        let isTrue = this.evaluateCondition(condPart);
+                        let [bodyStr, bodyNextIdx] = this.readBody(blockStr, i);
+                        i = bodyNextIdx;
+
+                        if (isTrue) {
+                            this.parseSequence(bodyStr);
+                        }
+                    } else {
+                        let nextColon = blockStr.indexOf(':', i);
+                        let endIdx = nextColon !== -1 ? nextColon : n;
+                        let cmd = blockStr.substring(i, endIdx);
+                        if (cmd) {
+                            this.executeCommand(cmd);
+                        }
+                        i = endIdx;
+                    }
+                }
+            }
+
+            readCondition(s, start) {
+                let i = start;
+                while (i < s.length && s[i] !== ':') {
+                    i++;
+                }
+                return [s.substring(start, i), i < s.length ? i + 1 : i];
+            }
+
+            evaluateCondition(condStr) {
+                if (condStr.includes(';/;')) {
+                    let parts = condStr.split(';/;');
+                    let currentVal = this.vars[parts[0]];
+                    return String(currentVal) !== String(parts[1]);
+                } else if (condStr.includes(';')) {
+                    let parts = condStr.split(';');
+                    let currentVal = this.vars[parts[0]];
+                    return String(currentVal) === String(parts[1]);
+                }
+                return false;
+            }
+
+            readBody(s, start) {
+                let i = start;
+                while (i < s.length) {
+                    if (s[i] === ':') {
+                        let semiCheck = s.indexOf(';', i);
+                        let colonCheck = s.indexOf(':', i + 1);
+                        if (semiCheck !== -1 && (colonCheck === -1 || semiCheck < colonCheck)) {
+                            break;
+                        }
+                    }
+                    i++;
+                }
+                return [s.substring(start, i), i];
+            }
         }
 
-        async function registerSW() {
+        function runScript() {
+            const code = document.getElementById('code-input').value;
+            const outputElement = document.getElementById('output');
+            
             try {
-                await navigator.serviceWorker.register('./sw.js', { scope: './' });
-                log('[*] SW registered successfully.');
-                statusEl.innerText = 'Active';
-                updateServerPayload();
+                const interpreter = new CustomInterpreter();
+                interpreter.run(code);
+                
+                let resultText = "Execution Successful!\n\nFinal Variable States:\n";
+                for (let [key, val] of Object.entries(interpreter.vars)) {
+                    resultText += `  ${key} = ${val}\n`;
+                }
+                resultText += `\nCalculated Pi Value (P): ${interpreter.vars['P'] || 'Not Set'}`;
+                outputElement.textContent = resultText;
             } catch (err) {
-                log('[!] Failed: ' + err.message);
+                outputElement.textContent = "Error during execution: " + err.message;
             }
         }
-
-        async function unregisterSW() {
-            const regs = await navigator.serviceWorker.getRegistrations();
-            for (let reg of regs) await reg.unregister();
-            log('[-] SW unregistered.');
-            statusEl.innerText = 'Stopped';
-        }
-
-        function updateServerPayload() {
-            if (navigator.serviceWorker.controller) {
-                navigator.serviceWorker.controller.postMessage({
-                    type: 'UPDATE_CONTENT',
-                    payload: document.getElementById('html-payload').value
-                });
-                log('[*] Content updated.');
-            }
-        }
-
-        navigator.serviceWorker.addEventListener('message', (event) => {
-            if (event.data?.type === 'HTTP_LOG') {
-                log(`[HTTP/1.1] ${event.data.method} ${event.data.url}`);
-            }
-        });
-
-        document.getElementById('btn-start').onclick = registerSW;
-        document.getElementById('btn-stop').onclick = unregisterSW;
-        document.getElementById('btn-update').onclick = updateServerPayload;
-        document.getElementById('btn-test').onclick = () => {
-            iframe.src = '/virtual-server?' + Date.now();
-        };
-
-        navigator.serviceWorker.getRegistration().then(reg => {
-            statusEl.innerText = reg ? 'Active' : 'Not Running';
-        });
     </script>
 </body>
 </html>
