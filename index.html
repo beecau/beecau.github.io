@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>math</title>
+    <title>Custom Language Interpreter & Expanded Tutorial</title>
     <style>
         body {
             font-family: 'Courier New', Courier, monospace;
             background-color: #1e1e1e;
             color: #d4d4d4;
-            max-width: 900px;
+            max-width: 950px;
             margin: 40px auto;
             padding: 20px;
             line-height: 1.6;
@@ -26,7 +26,7 @@
         }
         textarea {
             width: 100%;
-            height: 100px;
+            height: 90px;
             background-color: #1e1e1e;
             color: #ce9178;
             border: 1px solid #454545;
@@ -62,7 +62,7 @@
             padding-left: 20px;
         }
         li {
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
         code {
             background-color: #333;
@@ -70,18 +70,24 @@
             border-radius: 3px;
             color: #ce9178;
         }
+        .syntax-box {
+            background-color: #1a1a1a;
+            border-left: 4px solid #4ec9b0;
+            padding: 10px 15px;
+            margin: 10px 0;
+        }
     </style>
 </head>
 <body>
 
-    <h1>Custom Language Engine</h1>
-    <p>A fully functional custom programming language featuring state assignment, conditionals, negation, and loop blocks.</p>
+    <h1>Custom Language Engine & Manual</h1>
+    <p>An advanced, user-defined programming environment featuring inline pipe grouping, scaling juxtaposition, state piping, conditional branching, and iterative loops.</p>
 
     <!-- INTERACTIVE RUNNER -->
     <div class="card">
         <h2>Live Interpreter</h2>
         <label for="code-input"><strong>Enter your script:</strong></label><br><br>
-        <textarea id="code-input">4>P:3>B:1>S:1000>D:[:S;1:P-(4/B)>P:2>S;/;1:P+(4/B)>P:1>S:B+2>B]:D!>C</textarea>
+        <textarea id="code-input">A|A(A|B)>C:CA;5:A|A(A|B):CA;/5:A|A(A|B)>D:D!:A|A</textarea>
         <br>
         <button onclick="runScript()">Run Script</button>
         
@@ -89,40 +95,60 @@
         <pre id="output">Click "Run Script" to execute code...</pre>
     </div>
 
-    <!-- TUTORIAL SECTION -->
+    <!-- EXPANDED TUTORIAL SECTION -->
     <div class="card">
-        <h2>Language Tutorial & Syntax Guide</h2>
-        <p>Learn how to write scripts in your custom-built programming language:</p>
+        <h2>Complete Language Specification & Tutorial</h2>
+        <p>Welcome to the official manual for your custom-built programming language. Follow this guide to understand how every symbol and operator transforms data.</p>
         
+        <h3>1. Variables & Grouping via Pipes (<code>|</code>)</h3>
+        <p>In standard algebra, writing letters next to each other or using grouping handles things differently. In your language, the pipe symbol (<code>|</code>) creates an explicit addition block.</p>
+        <div class="syntax-box">
+            <code>A|A</code> $\rightarrow$ Evaluates to $A + A$ (If $A=1$, result is $2$).<br>
+            <code>(A|B)</code> $\rightarrow$ Evaluates to $A + B$ inside a parentheses group.
+        </div>
+
+        <h3>2. Juxtaposition & Scaling</h3>
+        <p>Placing two terms right next to each other multiplies them together, combining your pipe groups and variables dynamically.</p>
+        <div class="syntax-box">
+            <code>A|A(A|B)</code> $\rightarrow$ Breaks down into $(A + A) \times (A + B)$.<br>
+            If $A=1$ and $B=1$, this calculates $2 \times 2 = 4$.
+        </div>
+
+        <h3>3. State Pipeline & Assignment (<code>></code>)</h3>
+        <p>The right-facing arrow takes the evaluated result of whatever is on its left and assigns it into a storage variable on its right.</p>
+        <div class="syntax-box">
+            <code>A|A(A|B)>C</code> $\rightarrow$ Evaluates the expression to 4, then stores it in variable <code>C</code>.
+        </div>
+
+        <h3>4. Sequential Chaining (<code>:</code>)</h3>
+        <p>Colons act as command separators, allowing you to string multiple operations, checks, and blocks into a single execution stream.</p>
+
+        <h3>5. Conditional Guards & Branching (<code>;</code> and <code>;/;</code>)</h3>
+        <p>Your language supports full branching logic based on variable state:</p>
         <ul>
-            <li><strong>Assignment (<code>></code>):</strong> Assigns a value or expression result to a variable. Example: <code>4>P</code> sets variable <code>P</code> to 4.</li>
-            <li><strong>Sequential Chaining (<code>:</code>):</strong> Separates individual commands or steps in a sequence.</li>
-            <li><strong>Conditionals (<code>:VAR;VAL</code>):</strong> Checks if a variable equals a target value. Example: <code>:S;1</code> checks if <code>S == 1</code>.</li>
-            <li><strong>Negation / Else-Not (<code>;/;</code>):</strong> Checks if a variable does <em>not</em> equal a target value. Example: <code>:S;/;1</code> triggers if <code>S != 1</code>.</li>
-            <li><strong>Loop Blocks (<code>[...] > D!</code>):</strong> Wraps a block of code in brackets and repeats it <code>D</code> times using the exclamation mark modifier.</li>
+            <li><strong>Equality Check (<code>:VAR;VAL</code>):</strong> Triggers the subsequent code if the variable equals the target value. Example: <code>:CA;5</code> checks if $C + A == 5$.</li>
+            <li><strong>Negation / Else-Not Check (<code>;/;VAL</code>):</strong> Triggers if the active variable does <em>not</em> equal the target value.</li>
         </ul>
 
-        <h3>Sample Leibniz Pi Script Breakdown:</h3>
-        <pre>4>P:3>B:1>S:1000>D:  [ ... ] : D! > C
-│       │ │    │      │     │  │
-│       │ │    │      │     │  └── Stores final result in C
-│       │ │    │      │     └──── Loops D times (1000 iterations)
-│       │ │    │      └────────── Code block containing if/else conditional math
-│       │ │    └───────────────── Sets loop counter D = 1000
-│       │ └────────────────────── Sets toggle state S = 1
-│       └──────────────────────── Sets denominator B = 3
-└──────────────────────────────── Sets starting Pi approximation P = 4</pre>
+        <h3>6. Loop Blocks (<code>[...] > D!</code>)</h3>
+        <p>Enclosing code inside square brackets <code>[...]</code> defines a block. Appending <code>>D</code> pipes a counter into a variable, and adding <code>!</code> tells the engine to repeat that block execution <code>D</code> times.</p>
     </div>
 
     <script>
         class CustomInterpreter {
             constructor() {
-                this.vars = {};
+                // Default base variables for testing
+                this.vars = {'A': 1, 'B': 1};
             }
 
             evaluateExpression(expr) {
                 expr = expr.trim();
                 let processed = expr;
+                
+                // Replace custom pipe syntax A|A with (A+A) for safe evaluation
+                // This converts your custom notation into valid math expressions
+                processed = processed.replace(/([A-Za-z0-9]+)\|([A-Za-z0-9]+)/g, '($1+$2)');
+                
                 // Sort keys by length descending to prevent substring substitution bugs
                 const sortedVars = Object.keys(this.vars).sort((a, b) => b.length - a.length);
                 for (let v of sortedVars) {
@@ -138,7 +164,6 @@
             }
 
             run(codeStr) {
-                this.vars = {};
                 codeStr = codeStr.replace(/\s+/g, '');
                 this.parseSequence(codeStr);
             }
@@ -195,66 +220,31 @@
             }
 
             parseBlock(blockStr) {
-                let i = 0;
-                let n = blockStr.length;
-                while (i < n) {
-                    if (blockStr[i] === ':') {
-                        i++;
-                        let [condPart, nextIdx] = this.readCondition(blockStr, i);
-                        i = nextIdx;
-                        let isTrue = this.evaluateCondition(condPart);
-                        let [bodyStr, bodyNextIdx] = this.readBody(blockStr, i);
-                        i = bodyNextIdx;
+                let tokens = blockStr.split(':').filter(t => t !== '');
+                let executeActive = true;
+                let branchExecuted = false;
+                let lastVar = '';
 
-                        if (isTrue) {
-                            this.parseSequence(bodyStr);
+                for (let token of tokens) {
+                    if (token.includes(';/;')) {
+                        let targetVal = token.split(';/;')[1];
+                        let currentVal = String(this.evaluateExpression(lastVar));
+                        executeActive = (!branchExecuted && currentVal !== String(targetVal));
+                    } else if (token.includes(';')) {
+                        let parts = token.split(';');
+                        lastVar = parts[0];
+                        let targetVal = parts[1];
+                        let currentVal = String(this.evaluateExpression(lastVar));
+                        executeActive = (currentVal === String(targetVal));
+                        if (executeActive) {
+                            branchExecuted = true;
                         }
                     } else {
-                        let nextColon = blockStr.indexOf(':', i);
-                        let endIdx = nextColon !== -1 ? nextColon : n;
-                        let cmd = blockStr.substring(i, endIdx);
-                        if (cmd) {
-                            this.executeCommand(cmd);
-                        }
-                        i = endIdx;
-                    }
-                }
-            }
-
-            readCondition(s, start) {
-                let i = start;
-                while (i < s.length && s[i] !== ':') {
-                    i++;
-                }
-                return [s.substring(start, i), i < s.length ? i + 1 : i];
-            }
-
-            evaluateCondition(condStr) {
-                if (condStr.includes(';/;')) {
-                    let parts = condStr.split(';/;');
-                    let currentVal = this.vars[parts[0]];
-                    return String(currentVal) !== String(parts[1]);
-                } else if (condStr.includes(';')) {
-                    let parts = condStr.split(';');
-                    let currentVal = this.vars[parts[0]];
-                    return String(currentVal) === String(parts[1]);
-                }
-                return false;
-            }
-
-            readBody(s, start) {
-                let i = start;
-                while (i < s.length) {
-                    if (s[i] === ':') {
-                        let semiCheck = s.indexOf(';', i);
-                        let colonCheck = s.indexOf(':', i + 1);
-                        if (semiCheck !== -1 && (colonCheck === -1 || semiCheck < colonCheck)) {
-                            break;
+                        if (executeActive) {
+                            this.executeCommand(token);
                         }
                     }
-                    i++;
                 }
-                return [s.substring(start, i), i];
             }
         }
 
@@ -270,7 +260,6 @@
                 for (let [key, val] of Object.entries(interpreter.vars)) {
                     resultText += `  ${key} = ${val}\n`;
                 }
-                resultText += `\nCalculated Pi Value (P): ${interpreter.vars['P'] || 'Not Set'}`;
                 outputElement.textContent = resultText;
             } catch (err) {
                 outputElement.textContent = "Error during execution: " + err.message;
