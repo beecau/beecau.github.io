@@ -1,11 +1,84 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta property="og:title" content="Cursed Preview Test">
-    <meta property="og:description" content="A chat system built on pure chaos.">
-    <meta property="og:image" content="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOJ4IZbkwwyJD4dq7MObC7x1gpYN0xVkTOV_X9T9ZCMQ&s=10">
+    <title>Text to Image Renderer</title>
+    <style>
+        body { background: #222; color: #eee; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        canvas { border: 2px solid #555; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); max-width: 90vw; }
+        p { margin-top: 20px; color: #888; }
+    </style>
 </head>
 <body>
-    <h1>Check your chat preview!</h1>
+
+    <canvas id="textCanvas" width="600" height="200"></canvas>
+    <p>Edit the URL hash to change the text (e.g., <code>#Hello World</code>)</p>
+
+    <script>
+        const canvas = document.getElementById('textCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // --- Core Rendering Logic ---
+        function renderTextToCanvas() {
+            // 1. Get text from the URL hash (everything after the #)
+            // Using decodeURIComponent handles spaces and special characters
+            let hash = window.location.hash.substring(1);
+            let message = hash ? decodeURIComponent(hash) : "Type something after the # in the URL!";
+
+            // 2. Clear the canvas
+            ctx.fillStyle = '#333';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 3. Configure Font Styles
+            ctx.fillStyle = '#fff';
+            ctx.font = '40px "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // 4. Word Wrap / Multiline Support (Crucial for long text!)
+            const maxWidth = canvas.width - 40;
+            const lineHeight = 48;
+            let lines = getLines(ctx, message, maxWidth);
+            let y = (canvas.height / 2) - (lines.length / 2 * lineHeight);
+
+            lines.forEach(line => {
+                ctx.fillText(line, canvas.width / 2, y);
+                y += lineHeight;
+            });
+            
+            // OPTIONAL: Set the page title to the text
+            document.title = "Image: " + message;
+        }
+
+
+        // Helper function to split long text into multiple lines for the canvas
+        function getLines(ctx, text, maxWidth) {
+            var words = text.split(" ");
+            var lines = [];
+            var currentLine = words[0];
+
+            for (var i = 1; i < words.length; i++) {
+                var word = words[i];
+                var width = ctx.measureText(currentLine + " " + word).width;
+                if (width < maxWidth) {
+                    currentLine += " " + word;
+                } else {
+                    lines.push(currentLine);
+                    currentLine = word;
+                }
+            }
+            lines.push(currentLine);
+            return lines;
+        }
+
+
+        // --- Event Listeners ---
+        
+        // Run on initial load
+        renderTextToCanvas();
+
+        // Re-render whenever the URL hash changes (e.g., user types a new message in address bar)
+        window.addEventListener('hashchange', renderTextToCanvas);
+
+    </script>
 </body>
 </html>
