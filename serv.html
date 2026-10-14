@@ -1,86 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Browser SW Forum</title>
+    <title>Server</title>
 </head>
 <body>
 
-    <h1>[G7A Constitutional Tribunal & Forum]</h1>
-    <div class="status" id="status">Initializing Service Worker engine...</div>
+    <h1>HTTP/1.1 Server</h1>
+    <p id="status">Registering server...</p>
 
-    <div class="feed" id="feed">
-        <div class="post">Loading memory feed...</div>
-    </div>
-
-    <div class="form-group">
-        <input type="text" id="msgInput" placeholder="Drop a message into memory..." autocomplete="off">
-        <button onclick="postMessage()">Transmit</button>
+    <div id="controls" style="display: none;">
+        <button onclick="testRoute('/api/status')">Fetch /api/status</button>
+        <button onclick="testRoute('/api/hello')">Fetch /api/hello</button>
+        <pre id="log">Waiting for request...</pre>
     </div>
 
     <script>
-        const ROUTE = '/virtual-forum/api/posts';
-
-        async function init() {
-            if (!('serviceWorker' in navigator)) {
-                document.getElementById('status').innerText = 'Error: Service Workers not supported.';
-                return;
-            }
-
-            try {
-                await navigator.serviceWorker.register('/sw.js');
-                navigator.serviceWorker.ready.then(() => {
-                    document.getElementById('status').innerText = 'Status: SW Active | Memory-backed HTTP/1.1 Online';
-                    fetchPosts();
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                .then(() => {
+                    document.getElementById('status').innerText = "Server Active!";
+                    document.getElementById('controls').style.display = "block";
+                })
+                .catch((err) => {
+                    document.getElementById('status').innerText = "Error: " + err;
                 });
-            } catch (err) {
-                document.getElementById('status').innerText = 'Registration failed: ' + err;
-            }
+        } else {
+            document.getElementById('status').innerText = "Service workers unsupported.";
         }
 
-        async function fetchPosts() {
+        async function testRoute(path) {
+            const logEl = document.getElementById('log');
+            logEl.innerText = "Sending request...";
             try {
-                let res = await fetch(ROUTE);
-                let data = await res.json();
-                let feed = document.getElementById('feed');
-                
-                if (data.length === 0) {
-                    feed.innerHTML = '<div class="post">No transmissions recorded yet.</div>';
-                    return;
-                }
-
-                feed.innerHTML = data.map(p => `
-                    <div class="post">
-                        <span class="time">[${new Date(p.time).toLocaleTimeString()}]</span> 
-                        <div>${escapeHtml(p.text)}</div>
-                    </div>
-                `).join('');
-                feed.scrollTop = feed.scrollHeight;
-            } catch (e) {
-                console.error("Fetch failed", e);
+                const response = await fetch(path);
+                const text = await response.text();
+                logEl.innerText = `HTTP/1.1 ${response.status}\n\n${text}`;
+            } catch (err) {
+                logEl.innerText = "Error: " + err.message;
             }
         }
-
-        async function postMessage() {
-            let input = document.getElementById('msgInput');
-            let text = input.value.trim();
-            if (!text) return;
-
-            await fetch(ROUTE, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: text })
-            });
-
-            input.value = '';
-            fetchPosts();
-        }
-
-        function escapeHtml(str) {
-            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        }
-
-        init();
     </script>
 </body>
 </html>
