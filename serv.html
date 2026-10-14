@@ -8,36 +8,29 @@
     <h1>HTTP/1.1 Server</h1>
     <p id="status">Registering server...</p>
 
-    <div id="controls" style="display: none;">
-        <button onclick="testRoute('/api/status')">Fetch /api/status</button>
-        <button onclick="testRoute('/api/hello')">Fetch /api/hello</button>
-        <pre id="log">Waiting for request...</pre>
+    <!-- Navigation links to visit the hosted sub-pages directly -->
+    <div id="navigation-links" style="display: none;">
+        <h3>Visit Hosted Server Pages:</h3>
+        <ul>
+            <li><a href="api/status" target="_blank">Go to /api/status</a></li>
+            <li><a href="api/hello" target="_blank">Go to /api/hello</a></li>
+        </ul>
+        <p><em>(Links open in a new tab. The Service Worker will intercept the URL request and serve the page raw.)</em></p>
     </div>
 
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js', { scope: '/' })
+            // Register using relative pathing to support GitHub subfolders correctly
+            navigator.serviceWorker.register('sw.js')
                 .then(() => {
                     document.getElementById('status').innerText = "Server Active!";
-                    document.getElementById('controls').style.display = "block";
+                    document.getElementById('navigation-links').style.display = "block";
                 })
                 .catch((err) => {
                     document.getElementById('status').innerText = "Error: " + err;
                 });
         } else {
             document.getElementById('status').innerText = "Service workers unsupported.";
-        }
-
-        async function testRoute(path) {
-            const logEl = document.getElementById('log');
-            logEl.innerText = "Sending request...";
-            try {
-                const response = await fetch(path);
-                const text = await response.text();
-                logEl.innerText = `HTTP/1.1 ${response.status}\n\n${text}`;
-            } catch (err) {
-                logEl.innerText = "Error: " + err.message;
-            }
         }
     </script>
 </body>
