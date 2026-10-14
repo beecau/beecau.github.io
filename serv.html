@@ -2,27 +2,96 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SW Server Bootloader</title>
+    <title>Browser SW Forum</title>
+    <style>
+        body { background: #121212; color: #e0e0e0; font-family: monospace; max-width: 600px; margin: 40px auto; padding: 20px; }
+        h1 { color: #00ff66; font-size: 1.4rem; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .status { font-size: 0.85rem; color: #888; margin-bottom: 20px; }
+        .feed { background: #1e1e1e; border: 1px solid #333; height: 300px; overflow-y: scroll; padding: 10px; margin-bottom: 15px; }
+        .post { margin-bottom: 10px; border-bottom: 1px dashed #333; padding-bottom: 6px; }
+        .time { color: #666; font-size: 0.75rem; }
+        input[type="text"] { width: 75%; background: #222; border: 1px solid #444; color: #fff; padding: 8px; font-family: monospace; }
+        button { background: #00ff66; color: #000; border: none; padding: 9px 15px; font-weight: bold; cursor: pointer; font-family: monospace; }
+        button:hover { background: #00cc55; }
+    </style>
 </head>
 <body>
-    <h1>Service Worker HTTP Server</h1>
-    <p id="status">Initializing server...</p>
-    <p><a id="server-link" href="/virtual-server/" style="display:none;" target="_blank">Open Virtual Server Route</a></p>
+
+    <h1>[G7A Constitutional Tribunal & Forum]</h1>
+    <div class="status" id="status">Initializing Service Worker engine...</div>
+
+    <div class="feed" id="feed">
+        <div class="post">Loading memory feed...</div>
+    </div>
+
+    <div class="form-group">
+        <input type="text" id="msgInput" placeholder="Drop a message into memory..." autocomplete="off">
+        <button onclick="postMessage()">Transmit</button>
+    </div>
 
     <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js')
-                .then(reg => {
-                    document.getElementById('status').innerText = 'Service Worker active! Server is online.';
-                    const link = document.getElementById('server-link');
-                    link.style.display = 'inline';
-                })
-                .catch(err => {
-                    document.getElementById('status').innerText = 'Registration failed: ' + err;
+        const ROUTE = '/virtual-forum/api/posts';
+
+        async function init() {
+            if (!('serviceWorker' in navigator)) {
+                document.getElementById('status').innerText = 'Error: Service Workers not supported.';
+                return;
+            }
+
+            try {
+                await navigator.serviceWorker.register('/sw.js');
+                navigator.serviceWorker.ready.then(() => {
+                    document.getElementById('status').innerText = 'Status: SW Active | Memory-backed HTTP/1.1 Online';
+                    fetchPosts();
                 });
-        } else {
-            document.getElementById('status').innerText = 'Service Workers not supported.';
+            } catch (err) {
+                document.getElementById('status').innerText = 'Registration failed: ' + err;
+            }
         }
+
+        async function fetchPosts() {
+            try {
+                let res = await fetch(ROUTE);
+                let data = await res.json();
+                let feed = document.getElementById('feed');
+                
+                if (data.length === 0) {
+                    feed.innerHTML = '<div class="post">No transmissions recorded yet.</div>';
+                    return;
+                }
+
+                feed.innerHTML = data.map(p => `
+                    <div class="post">
+                        <span class="time">[${new Date(p.time).toLocaleTimeString()}]</span> 
+                        <div>${escapeHtml(p.text)}</div>
+                    </div>
+                `).join('');
+                feed.scrollTop = feed.scrollHeight;
+            } catch (e) {
+                console.error("Fetch failed", e);
+            }
+        }
+
+        async function postMessage() {
+            let input = document.getElementById('msgInput');
+            let text = input.value.trim();
+            if (!text) return;
+
+            await fetch(ROUTE, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: text })
+            });
+
+            input.value = '';
+            fetchPosts();
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        init();
     </script>
 </body>
 </html>
