@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SW Server Bootloader</title>
+</head>
+<body>
+    <h1>Service Worker HTTP Server</h1>
+    <p id="status">Initializing server...</p>
+    <p><a id="server-link" href="/virtual-server/" style="display:none;" target="_blank">Open Virtual Server Route</a></p>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => {
+                    document.getElementById('status').innerText = 'Service Worker active! Server is online.';
+                    const link = document.getElementById('server-link');
+                    link.style.display = 'inline';
+                })
+                .catch(err => {
+                    document.getElementById('status').innerText = 'Registration failed: ' + err;
+                });
+        } else {
+            document.getElementById('status').innerText = 'Service Workers not supported.';
+        }
+    </script>
+</body>
+</html>
