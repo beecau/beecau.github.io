@@ -8,8 +8,7 @@
     <pre id="terminal">Initializing...</pre>
 
     <script>
-        // Helper function to simulate a typewriter effect line by line
-        async function typeWriter(element, lines, speed = 25) {
+        async function typeWriter(element, lines, speed = 15) {
             element.textContent = "";
             for (let i = 0; i < lines.length; i++) {
                 let line = lines[i];
@@ -29,9 +28,11 @@
             lines.push("--------------------------------");
             lines.push("INDICES:");
 
+            // Using a CORS proxy to bypass browser restrictions
+            const proxy = "https://api.allorigins.win/raw?url=";
+
             try {
-                // Fetch indices
-                let res = await fetch('https://www.idxchannel.com/api/saham/index/choices');
+                let res = await fetch(proxy + encodeURIComponent('https://www.idxchannel.com/api/saham/index/choices'));
                 let json = await res.json();
                 
                 json.data.index.forEach(item => {
@@ -48,8 +49,7 @@
             lines.push("CURRENCIES:");
 
             try {
-                // Fetch currencies
-                let res = await fetch('https://www.idxchannel.com/api/saham/currency/choices');
+                let res = await fetch(proxy + encodeURIComponent('https://www.idxchannel.com/api/saham/currency/choices'));
                 let json = await res.json();
                 
                 json.data.index.forEach(item => {
@@ -60,12 +60,10 @@
                 lines.push("Error loading currency data.");
             }
 
-            // Print it out line by line like a real printer
             let terminal = document.getElementById('terminal');
-            await typeWriter(terminal, lines, 15);
+            await typeWriter(terminal, lines, 10);
         }
 
-        // Run immediately, then loop every 10 seconds
         fetchData();
         setInterval(fetchData, 10000);
     </script>
