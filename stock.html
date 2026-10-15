@@ -6,9 +6,8 @@
 </head>
 <body>
     <pre id="terminal">Initializing...</pre>
-
     <script>
-        async function typeWriter(element, lines, speed = 15) {
+        async function typeWriter(element, lines, speed = 25) {
             element.textContent = "";
             for (let i = 0; i < lines.length; i++) {
                 let line = lines[i];
@@ -19,22 +18,18 @@
                 element.textContent += "\n";
             }
         }
-
         async function fetchData() {
             let lines = [];
-            
             lines.push("=== INDONESIA ECONOMY WATCH ===");
             lines.push(new Date().toLocaleString() + " WIB");
             lines.push("--------------------------------");
             lines.push("INDICES:");
 
-            // Using a CORS proxy to bypass browser restrictions
             const proxy = "https://api.allorigins.win/raw?url=";
 
             try {
                 let res = await fetch(proxy + encodeURIComponent('https://www.idxchannel.com/api/saham/index/choices'));
                 let json = await res.json();
-                
                 json.data.index.forEach(item => {
                     let sign = item.color === 'green' ? '+' : '-';
                     let code = item.code.padEnd(12);
@@ -44,14 +39,11 @@
             } catch (e) {
                 lines.push("Error loading indices data.");
             }
-
             lines.push("--------------------------------");
             lines.push("CURRENCIES:");
-
             try {
                 let res = await fetch(proxy + encodeURIComponent('https://www.idxchannel.com/api/saham/currency/choices'));
                 let json = await res.json();
-                
                 json.data.index.forEach(item => {
                     let code = item.name.padEnd(6);
                     lines.push(`${code} : Rp ${item.close}`);
@@ -59,11 +51,9 @@
             } catch (e) {
                 lines.push("Error loading currency data.");
             }
-
             let terminal = document.getElementById('terminal');
-            await typeWriter(terminal, lines, 10);
+            await typeWriter(terminal, lines, 15);
         }
-
         fetchData();
         setInterval(fetchData, 10000);
     </script>
