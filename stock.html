@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Indonesia Economy Watch</title>
+</head>
+<body>
+    <pre id="terminal">Initializing...</pre>
+
+    <script>
+        // Helper function to simulate a typewriter effect line by line
+        async function typeWriter(element, lines, speed = 25) {
+            element.textContent = "";
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
+                for (let j = 0; j < line.length; j++) {
+                    element.textContent += line[j];
+                    await new Promise(resolve => setTimeout(resolve, speed));
+                }
+                element.textContent += "\n";
+            }
+        }
+
+        async function fetchData() {
+            let lines = [];
+            
+            lines.push("=== INDONESIA ECONOMY WATCH ===");
+            lines.push(new Date().toLocaleString() + " WIB");
+            lines.push("--------------------------------");
+            lines.push("INDICES:");
+
+            try {
+                // Fetch indices
+                let res = await fetch('https://www.idxchannel.com/api/saham/index/choices');
+                let json = await res.json();
+                
+                json.data.index.forEach(item => {
+                    let sign = item.color === 'green' ? '+' : '-';
+                    let code = item.code.padEnd(12);
+                    let close = item.close.padEnd(10);
+                    lines.push(`${code} : ${close} (${sign}${item.change}, ${sign}${item.change_percentage}%)`);
+                });
+            } catch (e) {
+                lines.push("Error loading indices data.");
+            }
+
+            lines.push("--------------------------------");
+            lines.push("CURRENCIES:");
+
+            try {
+                // Fetch currencies
+                let res = await fetch('https://www.idxchannel.com/api/saham/currency/choices');
+                let json = await res.json();
+                
+                json.data.index.forEach(item => {
+                    let code = item.name.padEnd(6);
+                    lines.push(`${code} : Rp ${item.close}`);
+                });
+            } catch (e) {
+                lines.push("Error loading currency data.");
+            }
+
+            // Print it out line by line like a real printer
+            let terminal = document.getElementById('terminal');
+            await typeWriter(terminal, lines, 15);
+        }
+
+        // Run immediately, then loop every 10 seconds
+        fetchData();
+        setInterval(fetchData, 10000);
+    </script>
+</body>
+</html>
