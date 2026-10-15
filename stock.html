@@ -7,7 +7,9 @@
 <body>
     <pre id="terminal">Initializing...</pre>
     <script>
-        async function typeWriter(element, lines, speed = 25) {
+        let isRunning = false;
+
+        async function typeWriter(element, lines, speed = 10) {
             element.textContent = "";
             for (let i = 0; i < lines.length; i++) {
                 let line = lines[i];
@@ -18,18 +20,54 @@
                 element.textContent += "\n";
             }
         }
+
+        async function fetchWithTimeout(url, options = {}, timeout = 4000) {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+            try {
+                const response = await fetch(url, { ...options, signal: controller.signal });
+                clearTimeout(id);
+                if (!response.ok) throw new Error("HTTP error " + response.status);
+                return response;
+            } catch (e) {
+                clearTimeout(id);
+                throw e;
+            }
+        }
+
+        // List of multiple public CORS proxies to fallback on
+        async function fetchWithProxies(targetUrl) {
+            const proxies = [
+                url => "https://api.allorigins.win/raw?url=" + encodeURIComponent(url),
+                url => "https://api.cors.lol/?url=" + encodeURIComponent(url),
+                url => "https://corsproxy.io/?=" + encodeURIComponent(url),
+                url => "https://thingproxy.freeboard.io/fetch/" + targetUrl
+            ];
+
+            for (let getProxyUrl of proxies) {
+                try {
+                    let proxyUrl = getProxyUrl(targetUrl);
+                    let res = await fetchWithTimeout(proxyUrl, {}, 4000);
+                    return await res.json();
+                } catch (e) {
+                    // Try next proxy in line
+                }
+            }
+            throw new Error("All proxies failed");
+        }
+
         async function fetchData() {
+            if (isRunning) return;
+            isRunning = true;
+
             let lines = [];
             lines.push("=== INDONESIA ECONOMY WATCH ===");
             lines.push(new Date().toLocaleString() + " WIB");
             lines.push("--------------------------------");
             lines.push("INDICES:");
 
-            const proxy = "https://api.allorigins.win/raw?url=";
-
             try {
-                let res = await fetch(proxy + encodeURIComponent('https://www.idxchannel.com/api/saham/index/choices'));
-                let json = await res.json();
+                let json = await fetchWithProxies('https://www.idxchannel.com/api/saham/index/choices');
                 json.data.index.forEach(item => {
                     let sign = item.color === 'green' ? '+' : '-';
                     let code = item.code.padEnd(12);
@@ -39,11 +77,12 @@
             } catch (e) {
                 lines.push("Error loading indices data.");
             }
+
             lines.push("--------------------------------");
             lines.push("CURRENCIES:");
+
             try {
-                let res = await fetch(proxy + encodeURIComponent('https://www.idxchannel.com/api/saham/currency/choices'));
-                let json = await res.json();
+                let json = await fetchWithProxies('https://www.idxchannel.com/api/saham/currency/choices');
                 json.data.index.forEach(item => {
                     let code = item.name.padEnd(6);
                     lines.push(`${code} : Rp ${item.close}`);
@@ -51,9 +90,12 @@
             } catch (e) {
                 lines.push("Error loading currency data.");
             }
+
             let terminal = document.getElementById('terminal');
-            await typeWriter(terminal, lines, 15);
+            await typeWriter(terminal, lines, 10);
+            isRunning = false;
         }
+
         fetchData();
         setInterval(fetchData, 10000);
     </script>
