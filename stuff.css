@@ -218,3 +218,41 @@ img {
   @keyframes spin-3d {
     to { transform: rotateY(360deg) rotateZ(360deg); }
   }
+
+  v-player {
+    display: inline-block;
+    position: relative;
+    width: 480px;
+    height: 360px;
+    overflow: hidden;
+    background: #000;
+    user-select: none;
+  }
+
+  v-player .player-screen {
+    position: absolute;
+    left: 74px;
+    top: 38px;
+    width: 323px;
+    height: 267px;
+    background: #fff;
+    cursor: pointer;
+    z-index: 1;
+  }
+
+  v-player .player-screen img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  v-player .player-frame {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 480px;
+    height: 360px;
+    pointer-events: none;
+    z-index: 2;
+  }
